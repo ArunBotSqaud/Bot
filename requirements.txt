@@ -1,0 +1,8 @@
+Flask
+jupyter
+nbconvert
+nbformat
+transformers
+accelerate
+bitsandbytes
+trl
