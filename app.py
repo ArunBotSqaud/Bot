@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
-import nbformat
-from nbconvert import HTMLExporter
 import subprocess
+import os
 
 app = Flask(__name__)
 
@@ -11,17 +10,23 @@ def home():
 
 @app.route('/run_notebook', methods=['POST'])
 def run_notebook():
-    # Path to your notebook
     notebook_path = 'gemma_connection_ChatBot.ipynb'
+    output_path = 'gemma_connection_ChatBot.html'
 
-    # Execute the notebook using nbconvert
     try:
-        subprocess.run(['jupyter', 'nbconvert', '--to', 'html', '--execute', notebook_path])
-        with open(notebook_path.replace('.ipynb', '.html'), 'r') as f:
+        result = subprocess.run(
+            ['jupyter', 'nbconvert', '--to', 'html', '--execute', notebook_path, '--output', output_path],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        with open(output_path, 'r') as f:
             notebook_html = f.read()
         return notebook_html
+    except subprocess.CalledProcessError as e:
+        return f"Error: {e.stderr.decode('utf-8')}"
     except Exception as e:
-        return str(e)
+        return f"Unexpected Error: {str(e)}"
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=8000, debug=True)
